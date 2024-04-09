@@ -40,6 +40,10 @@ values = {
     "Battle.Skill.Skip": (1010, 745),
     "Battle.Skill.Charge": (900, 850),
     "Battle.Skill.Run": (1010, 850),
+    "Battle.Talent.1": (805, 353),
+    "Battle.Talent.2": (898, 269),
+    "Battle.Talent.3": (1000, 269),
+    "Battle.Talent.4": (1090, 353),
     "Accomplished": (1658, 696, 2.5),
     "LevelUp": (1662, 766, 1),
     "Center": (960, 540, 0),
@@ -59,17 +63,20 @@ class Shinobi:
                 "Mission.Menu.Accept",
             ],
             attacks=[
+                "Battle.Talent.4",
                 "Battle.Skill.3",
                 "Battle.Skill.8",
+                "Battle.Skill.5",
                 "Battle.Skill.1",
                 "Battle.Skill.4",
-                "Battle.Skill.7",
-                "Battle.Skill.6",
                 "Battle.Skill.2",
                 "Battle.Skill.Charge",
-                "Battle.Skill.5",
                 "Battle.Skill.Attack",
+                "Battle.Skill.7",
+                "Battle.Skill.6",
                 "Battle.Skill.Attack",
+                "Battle.Skill.Charge",
+                "Battle.Skill.Charge",
             ],
         )
         self.state = State(forceclose=False)
@@ -128,6 +135,7 @@ class Shinobi:
                 cropped = sc.crop((840, 830, 1070, 910))
 
                 text = self.getText(cropped).lower()
+                print(f"Printing text: {text}")
                 if (
                     "run" in text
                     or "charge" in text
