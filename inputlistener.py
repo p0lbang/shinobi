@@ -15,12 +15,14 @@ class InputListener:
         )
         self.Shinobi = shinobi
 
-    def on_press(self, key):
+    def on_press(self, key: Key):
         if "char" in dir(key):  # check if char method exists,
             print(key.char)
             if key.char == "q":  # check if it is 'q' key
+                self.Shinobi.setStateForceClose(True)
                 self.stop()
             elif key.char == "s":
+                # asyncio.run(self.Shinobi.start())
                 self.Shinobi.start()
 
     def on_move(self, x, y):
@@ -47,10 +49,10 @@ class InputListener:
     def stop(self):
         self.MouseListenerContainer.stop()
         self.KeyboardListenerContainer.stop()
-        exit()
+        print("Listener Stoped")
+        # exit()
 
 
 if __name__ == "__main__":
-    INPUTS = InputListener()
+    INPUTS = InputListener(Shinobi())
     INPUTS.start()
-    print("hamdog")
