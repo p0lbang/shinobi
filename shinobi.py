@@ -21,6 +21,12 @@ class State:
     forceclose: bool
 
 
+logging.basicConfig(
+    filename="runtime.txt",
+    level=logging.DEBUG,
+    format="%(asctime)s: %(message)s",
+)
+
 values = {
     "Mission": (1425, 773, 2),
     "Mission.Grade.C": (1298, 593, 0.4),
@@ -46,6 +52,10 @@ values = {
     "Battle.Talent.2": (898, 269),
     "Battle.Talent.3": (1000, 269),
     "Battle.Talent.4": (1090, 353),
+    "Battle.Talent.5": (805, 457),
+    "Battle.Talent.6": (898, 548),
+    "Battle.Talent.7": (1000, 548),
+    "Battle.Talent.8": (1090, 457),
     "Accomplished": (1658, 696, 2.25),
     "LevelUp": (1662, 766, 1),
     "Center": (960, 540, 0),
@@ -61,20 +71,22 @@ class Shinobi:
             ui=[
                 "Mission",
                 "Mission.Grade.C",
-                "Mission.Menu.Next",
-                "Mission.Menu.Option2",
+                # "Mission.Menu.Next",
+                "Mission.Menu.Option1",
                 "Mission.Menu.Accept",
             ],
             attacks=[
                 "Battle.Skill.1",
                 "Battle.Talent.4",
+                "Battle.Talent.2",
                 "Battle.Skill.3",
-                "Battle.Skill.4",
+                "Battle.Talent.6",
                 "Battle.Skill.7",
-                "Battle.Skill.6",
                 "Battle.Skill.8",
-                "Battle.Skill.Charge",
                 "Battle.Skill.Attack",
+                "Battle.Skill.Charge",
+                "Battle.Skill.4",
+                "Battle.Skill.6",
                 "Battle.Skill.2",
                 "Battle.Skill.5",
                 "Battle.Skill.Attack",
@@ -96,11 +108,6 @@ class Shinobi:
         (_, text, _) = result[0]
         return text
 
-    # def ProcessText_OLD():
-    #     image = getScreen()
-    #     text = pytesseract.image_to_string(image, lang="eng")
-    #     return text
-
     def ProcessText(self):
         image = self.getScreen()
         return self.getText(image)
@@ -118,19 +125,6 @@ class Shinobi:
         if len(v) == 3:
             sleeptime = v[2]
         time.sleep(sleeptime)
-
-    def checkrestricted(self):
-        pass
-        # for x in range(5):
-        #     cropped = sc.crop((400,61,1539,168))
-        #     text = self.getText(cropped).lower()
-        #     # Yow cannot use skills uder resuiction effects
-        #     findwords = [ "cannot", "use", "skills", "effects" ]
-        #     for word in findwords:
-        #         if word in text:
-        #             isRestricted = True
-        #             break
-        #     time.sleep(0.25)
 
     def grind(self):
         for k in self.actions.ui:
@@ -185,11 +179,11 @@ class Shinobi:
             cropped = sc.crop((840, 830, 1070, 910))
             text = self.getText(cropped).lower()
             if "run" in text or "charge" in text or "attack" in text or "skip" in text:
-                print("RESTRICTED: Doing a basic attack")
+                # print("RESTRICTED: Doing a basic attack")
                 self.click("Battle.Skill.Attack")
                 continue
-            
-            print(f"Attack Index: {attackindex}")
+
+            # print(f"Attack Index: {attackindex}")
             attackindex += 1
 
     def start(self):
@@ -198,6 +192,7 @@ class Shinobi:
             start = time.time()
             self.grind()
             print(f"Runtime: {time.time()-start}")
+            logging.info(f"Runtime: {time.time()-start}")
 
     def experiment(self):
         time.sleep(2)
