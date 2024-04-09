@@ -3,3 +3,5 @@ __pycache__
 env/
 mouse_log.txt
 *.png
+*.jpg
+*.zip
