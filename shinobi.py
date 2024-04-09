@@ -1,15 +1,8 @@
 from PIL import ImageGrab, Image
 import pyautogui
+import easyocr
 import numpy
 import time
-
-from inputlistener import InputListener
-
-# from pytesseract import pytesseract
-# path_to_tesseract = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-# pytesseract.tesseract_cmd = path_to_tesseract
-
-import easyocr
 
 from dataclasses import dataclass
 from typing import List
@@ -53,7 +46,7 @@ values = {
     # "", (,),
 }
 
-reader = easyocr.Reader(["en"], gpu=False)
+reader = easyocr.Reader(["en"])
 
 
 class Shinobi:
@@ -80,6 +73,9 @@ class Shinobi:
             ],
         )
         self.state = State(forceclose=False)
+
+    def setStateForceClose(self, value: bool):
+        self.state.forceclose = value
 
     def getScreen(self):
         screenshot = ImageGrab.grab()
@@ -116,14 +112,16 @@ class Shinobi:
     def grind(self):
         for k in self.actions.ui:
             self.clickSleep(k)
+            if self.state.forceclose:
+                print("Forced Close")
+                break
 
         Accomplished = False
 
         for k in self.actions.attacks:
             self.click("Center")
-            while True:
-                if self.state.forceclose:
-                    quit()
+            while not self.state.forceclose:
+                # print("Image processing")
 
                 sc = self.getScreen()
                 # cropped = sc.crop((840,700,1070,905))
@@ -149,19 +147,30 @@ class Shinobi:
                 text = self.getText(cropped).lower()
                 if "level" in text or "up" in text:
                     self.clickSleep("LevelUp")
+                    break
+
+                time.sleep(0.5)
 
             if Accomplished:
+                break
+
+            if self.state.forceclose:
+                print("Forced Close")
                 break
 
             self.click(k)
 
     def start(self):
-        self.grind()
+        print("Starting Shinobi script")
+        while True:
+            start = time.time()
+            self.grind()
+            print(f"Runtime: {time.time()-start}")
 
 
 if __name__ == "__main__":
-    INPUTS = InputListener(Shinobi())
-    INPUTS.start()
+    SHINOBI = Shinobi()
+    SHINOBI.start()
 
 # time.sleep(2)
 # sc = getScreen().convert("L")
