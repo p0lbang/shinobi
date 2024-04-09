@@ -7,6 +7,8 @@ import time
 from dataclasses import dataclass
 from typing import List
 
+import logging
+
 
 @dataclass
 class Actions:
@@ -20,7 +22,7 @@ class State:
 
 
 values = {
-    "Mission": (1425, 773, 2.25),
+    "Mission": (1425, 773, 2),
     "Mission.Grade.C": (1298, 593, 0.4),
     "Mission.Grade.D": (1298, 737, 0.4),
     "Mission.Menu.Accept": (1416, 767, 3),
@@ -44,7 +46,7 @@ values = {
     "Battle.Talent.2": (898, 269),
     "Battle.Talent.3": (1000, 269),
     "Battle.Talent.4": (1090, 353),
-    "Accomplished": (1658, 696, 2.5),
+    "Accomplished": (1658, 696, 2.25),
     "LevelUp": (1662, 766, 1),
     "Center": (960, 540, 0),
     # "", (,),
@@ -59,21 +61,22 @@ class Shinobi:
             ui=[
                 "Mission",
                 "Mission.Grade.C",
-                "Mission.Menu.Option1",
+                "Mission.Menu.Next",
+                "Mission.Menu.Option2",
                 "Mission.Menu.Accept",
             ],
             attacks=[
+                "Battle.Skill.1",
                 "Battle.Talent.4",
                 "Battle.Skill.3",
-                "Battle.Skill.8",
-                "Battle.Skill.5",
-                "Battle.Skill.1",
                 "Battle.Skill.4",
-                "Battle.Skill.2",
-                "Battle.Skill.Charge",
-                "Battle.Skill.Attack",
                 "Battle.Skill.7",
                 "Battle.Skill.6",
+                "Battle.Skill.8",
+                "Battle.Skill.Charge",
+                "Battle.Skill.Attack",
+                "Battle.Skill.2",
+                "Battle.Skill.5",
                 "Battle.Skill.Attack",
                 "Battle.Skill.Charge",
                 "Battle.Skill.Charge",
@@ -116,6 +119,19 @@ class Shinobi:
             sleeptime = v[2]
         time.sleep(sleeptime)
 
+    def checkrestricted(self):
+        pass
+        # for x in range(5):
+        #     cropped = sc.crop((400,61,1539,168))
+        #     text = self.getText(cropped).lower()
+        #     # Yow cannot use skills uder resuiction effects
+        #     findwords = [ "cannot", "use", "skills", "effects" ]
+        #     for word in findwords:
+        #         if word in text:
+        #             isRestricted = True
+        #             break
+        #     time.sleep(0.25)
+
     def grind(self):
         for k in self.actions.ui:
             self.clickSleep(k)
@@ -125,17 +141,16 @@ class Shinobi:
 
         Accomplished = False
 
-        for k in self.actions.attacks:
+        attackslength = len(self.actions.attacks)
+        attackindex = 0
+        while not self.state.forceclose:
+            k = self.actions.attacks[attackindex % attackslength]
+
             self.click("Center")
             while not self.state.forceclose:
-                # print("Image processing")
-
                 sc = self.getScreen()
-                # cropped = sc.crop((840,700,1070,905))
                 cropped = sc.crop((840, 830, 1070, 910))
-
                 text = self.getText(cropped).lower()
-                print(f"Printing text: {text}")
                 if (
                     "run" in text
                     or "charge" in text
@@ -157,16 +172,25 @@ class Shinobi:
                     self.clickSleep("LevelUp")
                     break
 
-                time.sleep(0.5)
+                time.sleep(0.25)
 
             if Accomplished:
                 break
 
-            if self.state.forceclose:
-                print("Forced Close")
-                break
-
             self.click(k)
+
+            # Check if restricted
+            time.sleep(0.1)
+            sc = self.getScreen()
+            cropped = sc.crop((840, 830, 1070, 910))
+            text = self.getText(cropped).lower()
+            if "run" in text or "charge" in text or "attack" in text or "skip" in text:
+                print("RESTRICTED: Doing a basic attack")
+                self.click("Battle.Skill.Attack")
+                continue
+            
+            print(f"Attack Index: {attackindex}")
+            attackindex += 1
 
     def start(self):
         print("Starting Shinobi script")
@@ -175,14 +199,30 @@ class Shinobi:
             self.grind()
             print(f"Runtime: {time.time()-start}")
 
+    def experiment(self):
+        time.sleep(2)
+        logging.basicConfig(
+            filename="debuff.txt",
+            level=logging.DEBUG,
+            format="%(asctime)s: %(message)s",
+        )
+        inc = 0
+        while True:
+            sc = self.getScreen()
+            # sc = sc.convert("L")
+            # cropped = sc.crop((840,830,1070,910))
+            # cropped = sc.crop((401,245,665,466))
+            cropped = sc.crop((400, 61, 1539, 168))
+            text = self.getText(cropped)
+            if len(text) > 2:
+                inc += 1
+                cropped.save(f"images/debuff-{inc}.jpg")
+                logging.info(f"debuff-{inc}: {text}")
+
+            time.sleep(0.25)
+
 
 if __name__ == "__main__":
     SHINOBI = Shinobi()
     SHINOBI.start()
-
-# time.sleep(2)
-# sc = getScreen().convert("L")
-# # cropped = sc.crop((840,830,1070,910))
-# cropped = sc.crop((641,132,1448,400))
-# cropped.save("test.png")
-# print(getText(cropped))
+    # SHINOBI.experiment()
