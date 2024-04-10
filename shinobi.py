@@ -61,7 +61,7 @@ values = {
     "Center": (960, 540, 0),
 }
 
-reader = easyocr.Reader(["en"])
+reader = easyocr.Reader(["en"], verbose=False)
 
 
 class Shinobi:
