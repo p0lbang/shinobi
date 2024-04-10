@@ -127,7 +127,14 @@ class Shinobi:
         time.sleep(sleeptime)
 
     def grind(self):
+        sc = self.getScreen()
+        self.checkIfFullscreen(sc)
+
         self.autoUI()
+
+        sc = self.getScreen()
+        self.checkIfFullscreen(sc)
+
         self.autoAttacks()
 
     def autoUI(self):
@@ -136,6 +143,12 @@ class Shinobi:
             if self.state.forceclose:
                 print("Forced Close")
                 break
+
+    def checkIfFullscreen(self, sc: Image):
+        cropped = sc.crop((0, 0, 200, 30))
+        text = self.getText(cropped).lower()
+        if "shinobi" in text or "warfare" in text:
+            exit()
 
     def autoAttacks(self):
         Accomplished = False
@@ -150,6 +163,9 @@ class Shinobi:
             self.click("Center")
             while not self.state.forceclose:
                 sc = self.getScreen()
+
+                self.checkIfFullscreen(sc)
+
                 cropped = sc.crop((840, 830, 1070, 910))
                 text = self.getText(cropped).lower()
                 if (
@@ -224,7 +240,7 @@ class Shinobi:
             # sc = sc.convert("L")
             # cropped = sc.crop((840,830,1070,910))
             # cropped = sc.crop((401,245,665,466))
-            cropped = sc.crop((400, 61, 1539, 168))
+            cropped = sc.crop((0, 0, 200, 30))
             text = self.getText(cropped)
             if len(text) > 2:
                 inc += 1
@@ -236,6 +252,6 @@ class Shinobi:
 
 if __name__ == "__main__":
     SHINOBI = Shinobi()
-    # SHINOBI.start()
-    SHINOBI.autoAttacks()
+    SHINOBI.start()
+    # SHINOBI.autoAttacks()
     # SHINOBI.experiment()
