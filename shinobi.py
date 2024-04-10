@@ -147,7 +147,7 @@ class Shinobi:
     def checkIfFullscreen(self, sc: Image):
         cropped = sc.crop((0, 0, 200, 30))
         text = self.getText(cropped).lower()
-        if "shinobi" in text or "warfare" in text:
+        if not ("shinobi" in text or "warfare" in text):
             exit()
 
     def autoAttacks(self):
@@ -252,6 +252,6 @@ class Shinobi:
 
 if __name__ == "__main__":
     SHINOBI = Shinobi()
-    SHINOBI.start()
-    # SHINOBI.autoAttacks()
+    # SHINOBI.start()
+    SHINOBI.autoAttacks()
     # SHINOBI.experiment()
