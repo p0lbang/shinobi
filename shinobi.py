@@ -77,21 +77,18 @@ class Shinobi:
             ],
             attacks=[
                 "Battle.Skill.1",
-                "Battle.Talent.4",
                 "Battle.Talent.2",
-                "Battle.Skill.3",
-                "Battle.Talent.6",
-                "Battle.Skill.7",
-                "Battle.Skill.8",
-                "Battle.Skill.Attack",
-                "Battle.Skill.Charge",
-                "Battle.Skill.4",
-                "Battle.Skill.6",
                 "Battle.Skill.2",
-                "Battle.Skill.5",
-                "Battle.Skill.Attack",
+                "Battle.Skill.3",
+                "Battle.Talent.4",
+                "Battle.Skill.4",
+                "Battle.Skill.8", 
                 "Battle.Skill.Charge",
-                "Battle.Skill.Charge",
+                "Battle.Talent.5",
+                "Battle.Talent.6",
+                # "Battle.Skill.5",
+                # "Battle.Skill.6",
+                # "Battle.Skill.7",
             ],
         )
         self.state = State(forceclose=False)
@@ -207,17 +204,30 @@ class Shinobi:
             # Check if restricted
             time.sleep(0.1)
             sc = self.getScreen()
-            cropped = sc.crop((840, 830, 1070, 910))
-            text = self.getText(cropped).lower()
-            if "run" in text or "charge" in text or "attack" in text or "skip" in text:
+            if self.checkAbleToAttack(sc):
                 # print("RESTRICTED: Doing a basic attack")
-                self.click("Battle.Skill.Attack")
-                recentAttacks.append("Battle.Skill.Attack")
+                # try next skill
+                tryk = self.actions.attacks[(attackindex+1) % attackslength]
+                self.click(tryk)
+                
+                sc = self.getScreen()
+                if self.checkAbleToAttack(sc):
+                    self.click("Battle.Skill.Attack")
+                    tryk = "Battle.Skill.Attack"
+                else:
+                    attackindex += 2
+                    
+                recentAttacks.append(tryk)
                 continue
 
             # print(f"Attack Index: {attackindex}")
             recentAttacks.append(k)
             attackindex += 1
+    
+    def checkAbleToAttack(self, sc: Image):
+        cropped = sc.crop((840, 830, 1070, 910))
+        text = self.getText(cropped).lower()
+        return "run" in text or "charge" in text or "attack" in text or "skip" in text
 
     def start(self):
         print("Starting Shinobi script")
@@ -252,6 +262,6 @@ class Shinobi:
 
 if __name__ == "__main__":
     SHINOBI = Shinobi()
-    # SHINOBI.start()
-    SHINOBI.autoAttacks()
+    SHINOBI.start()
+    # SHINOBI.autoAttacks()
     # SHINOBI.experiment()
