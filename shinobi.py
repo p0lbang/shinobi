@@ -28,7 +28,7 @@ logging.basicConfig(
 )
 
 values = {
-    "Mission": (1425, 773, 2),
+    "Mission": (1425, 773, 2.5),
     "Mission.Grade.C": (1298, 593, 0.4),
     "Mission.Grade.D": (1298, 737, 0.4),
     "Mission.Menu.Accept": (1416, 767, 3),
@@ -59,7 +59,6 @@ values = {
     "Accomplished": (1658, 696, 2.25),
     "LevelUp": (1662, 766, 1),
     "Center": (960, 540, 0),
-    # "", (,),
 }
 
 reader = easyocr.Reader(["en"])
