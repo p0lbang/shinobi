@@ -7,6 +7,7 @@ import time
 from dataclasses import dataclass
 from typing import List
 
+import collections
 import logging
 
 
@@ -126,16 +127,23 @@ class Shinobi:
         time.sleep(sleeptime)
 
     def grind(self):
+        self.autoUI()
+        self.autoAttacks()
+
+    def autoUI(self):
         for k in self.actions.ui:
             self.clickSleep(k)
             if self.state.forceclose:
                 print("Forced Close")
                 break
 
+    def autoAttacks(self):
         Accomplished = False
 
         attackslength = len(self.actions.attacks)
         attackindex = 0
+
+        recentAttacks = collections.deque(maxlen=3)
         while not self.state.forceclose:
             k = self.actions.attacks[attackindex % attackslength]
 
@@ -170,6 +178,14 @@ class Shinobi:
             if Accomplished:
                 break
 
+            # check if the 3 latest tries where the same attack so we could skip it
+            if len(recentAttacks) == 3 and recentAttacks.count(recentAttacks[0]) == 3:
+                if recentAttacks[0] != "Battle.Skill.Attack":
+                    attackindex += 1
+                    self.click("Battle.Skill.Attack")
+                    recentAttacks.clear()
+                    continue
+
             self.click(k)
 
             # Check if restricted
@@ -180,9 +196,11 @@ class Shinobi:
             if "run" in text or "charge" in text or "attack" in text or "skip" in text:
                 # print("RESTRICTED: Doing a basic attack")
                 self.click("Battle.Skill.Attack")
+                recentAttacks.append("Battle.Skill.Attack")
                 continue
 
             # print(f"Attack Index: {attackindex}")
+            recentAttacks.append(k)
             attackindex += 1
 
     def start(self):
@@ -218,5 +236,6 @@ class Shinobi:
 
 if __name__ == "__main__":
     SHINOBI = Shinobi()
-    SHINOBI.start()
+    # SHINOBI.start()
+    SHINOBI.autoAttacks()
     # SHINOBI.experiment()
