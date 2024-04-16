@@ -29,7 +29,8 @@ logging.basicConfig(
 )
 
 values = {
-    "Mission": (1425, 773, 2.5),
+    "RightSide": (1900, 773, 0.1),
+    "Mission": (1425, 773, 4.5),
     "Mission.Grade.C": (1298, 593, 0.4),
     "Mission.Grade.D": (1298, 737, 0.4),
     "Mission.Menu.Accept": (1416, 767, 3),
@@ -62,6 +63,37 @@ values = {
     "Center": (960, 540, 0),
 }
 
+# area = {
+#     "UI.EndScreen.LevelUp.Check": (1662, 766, 1),
+#     "UI.EndScreen.Accomplished.Check": (1658, 696, 2.25),
+#     "UI.EndScreen.BattleResult": (728, 168, 1158, 245),
+#     "UI.EndScreen.BattleResult.Check": (1191, 789),
+#     "UI.Home.HuntingHouse": (827, 457),
+#     "UI.Home.HuntingHouse.Blacksmith": (997, 486),
+#     "UI.Home.HuntingHouse.Navigation.Close": (1297, 287),
+#     "UI.Home.HuntingHouse.HuntingHouse": (999, 367),
+#     "UI.Home.HuntingHouse.HuntingHouse.Boss.1": (420, 216),
+#     "UI.Home.HuntingHouse.HuntingHouse.Boss.2": (420, 348),
+#     "UI.Home.HuntingHouse.HuntingHouse.Boss.3": (420, 475),
+#     "UI.Home.HuntingHouse.HuntingHouse.Boss.4": (420, 602),
+#     "UI.Home.HuntingHouse.HuntingHouse.Boss.5": (420, 732),
+#     "UI.Home.HuntingHouse.HuntingHouse.Navigation.Next": (675, 830),
+#     "UI.Home.HuntingHouse.HuntingHouse.Navigation.Previous": (516, 830),
+#     "UI.Home.HuntingHouse.HuntingHouse.Navigation.Close": (1598, 143),
+# }
+# from typing import TypedDict
+
+# class UI(TypedDict):
+#     sales: int
+#     country: str
+#     product_codes: bool
+    
+
+# print(UI.)
+
+
+# exit()
+
 reader = easyocr.Reader(["en"], verbose=False)
 
 
@@ -82,7 +114,7 @@ class Shinobi:
                 "Battle.Skill.3",
                 "Battle.Talent.4",
                 "Battle.Skill.4",
-                "Battle.Skill.8", 
+                "Battle.Skill.8",
                 "Battle.Skill.Charge",
                 "Battle.Talent.5",
                 "Battle.Talent.6",
@@ -147,7 +179,7 @@ class Shinobi:
         if not ("shinobi" in text or "warfare" in text):
             exit()
 
-    def autoAttacks(self):
+    def autoAttacks(self, checkforAccomplished=True):
         Accomplished = False
 
         attackslength = len(self.actions.attacks)
@@ -203,34 +235,36 @@ class Shinobi:
 
             # Check if restricted
             time.sleep(0.1)
-            sc = self.getScreen()
-            if self.checkAbleToAttack(sc):
+            if self.checkAbleToAttack():
                 # print("RESTRICTED: Doing a basic attack")
                 # try next skill
-                tryk = self.actions.attacks[(attackindex+1) % attackslength]
+                tryk = self.actions.attacks[(attackindex + 1) % attackslength]
                 self.click(tryk)
-                
-                sc = self.getScreen()
-                if self.checkAbleToAttack(sc):
+
+                time.sleep(0.1)
+                if self.checkAbleToAttack():
                     self.click("Battle.Skill.Attack")
                     tryk = "Battle.Skill.Attack"
                 else:
                     attackindex += 2
-                    
+
                 recentAttacks.append(tryk)
                 continue
 
             # print(f"Attack Index: {attackindex}")
             recentAttacks.append(k)
             attackindex += 1
-    
-    def checkAbleToAttack(self, sc: Image):
+
+    def checkAbleToAttack(self, sc: Image = None):
+        if sc is None:
+            sc = self.getScreen()
         cropped = sc.crop((840, 830, 1070, 910))
         text = self.getText(cropped).lower()
         return "run" in text or "charge" in text or "attack" in text or "skip" in text
 
     def start(self):
         print("Starting Shinobi script")
+        self.click("RightSide")
         while True:
             start = time.time()
             self.grind()
@@ -263,5 +297,5 @@ class Shinobi:
 if __name__ == "__main__":
     SHINOBI = Shinobi()
     SHINOBI.start()
-    # SHINOBI.autoAttacks()
+    # SHINOBI.autoAttacks(checkforAccomplished=False)
     # SHINOBI.experiment()
